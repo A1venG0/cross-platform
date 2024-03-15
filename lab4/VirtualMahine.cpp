@@ -40,12 +40,11 @@ public:
         FL_NEG = 1 << 2,
     };
 
-    void run()
+    void run(std::string input = nullptr)
     {
         running = true;
         while (running)
         {
-            std::string input;
             std::getline(std::cin, input);
             uint16_t instr = assembly.convert(input);
             uint16_t op = instr >> 12;
@@ -54,44 +53,27 @@ public:
             {
                 case OP_ADD:
                 {
-                    uint16_t r0 = (instr >> 9) & 0x7;
-                    uint16_t r1 = (instr >> 6) & 0x7;
-                    uint16_t r2 = instr & 0x7;
-                    reg[r0] = reg[r1] + reg[r2];
-
-                    update_flags(r0);
+                    add(instr);
                     break;
                 }
                 case OP_LD:
                 {
-                    uint16_t r0 = (instr >> 9) & 0x7;
-                    uint16_t value = sign_extend(instr & 0x1FF, 9);
-                    reg[r0] = value;
-                    update_flags(r0);
+                    load(instr);
                     break;
                 }
                 case OP_AND:
                 {
-                    uint16_t r0 = (instr >> 9) & 0x7;
-                    uint16_t r1 = (instr >> 6) & 0x7;
-                    uint16_t r2 = instr & 0x7;
-                    reg[r0] = reg[r1] & reg[r2];
-                    update_flags(r0);
+                    bitwise_and(instr);
                     break;
                 }
                 case OP_NOT:
                 {
-                    uint16_t r0 = (instr >> 9) & 0x7;
-                    uint16_t r1 = (instr >> 6) & 0x7;
-
-                    reg[r0] = ~reg[r1];
-                    update_flags(r0);
+                    bitwise_not(instr);
                     break;
                 }
                 case OP_JMP:
                 {
-                    uint16_t r1 = (instr >> 6) & 0x7;
-                    reg[R_PC] = reg[r1];
+                    jump(instr);
                     break;
                 }
                 case OP_PRINT:
@@ -102,6 +84,53 @@ public:
                 }
             }
         }
+    }
+
+    void add(uint16_t instr)
+    {
+        uint16_t r0 = (instr >> 9) & 0x7;
+        uint16_t r1 = (instr >> 6) & 0x7;
+        uint16_t r2 = instr & 0x7;
+        reg[r0] = reg[r1] + reg[r2];
+
+        update_flags(r0);
+    }
+
+    void load(uint16_t instr)
+    {
+        uint16_t r0 = (instr >> 9) & 0x7;
+        uint16_t value = sign_extend(instr & 0x1FF, 9);
+        reg[r0] = value;
+        update_flags(r0);
+    }
+
+    void bitwise_and(uint16_t instr)
+    {
+        uint16_t r0 = (instr >> 9) & 0x7;
+        uint16_t r1 = (instr >> 6) & 0x7;
+        uint16_t r2 = instr & 0x7;
+        reg[r0] = reg[r1] & reg[r2];
+        update_flags(r0);
+    }
+
+    void bitwise_not(uint16_t instr)
+    {
+        uint16_t r0 = (instr >> 9) & 0x7;
+        uint16_t r1 = (instr >> 6) & 0x7;
+
+        reg[r0] = ~reg[r1];
+        update_flags(r0);
+    }
+
+    void jump(uint16_t instr)
+    {
+        uint16_t r1 = (instr >> 6) & 0x7;
+        reg[R_PC] = reg[r1];
+    }
+
+    uint16_t get_registry_value(uint16_t r)
+    {
+        return reg[r];
     }
 
 private:
