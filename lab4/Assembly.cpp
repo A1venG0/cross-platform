@@ -62,6 +62,13 @@ public:
 			result_code |= (5 << 12); // 0101 - operation code
 
 		}
+		else if (operation == "PRINT")
+		{
+			iss >> first_operand;
+			uint16_t first_operand_number = stoi(first_operand.substr(first_operand.size() - 1, 1));
+			result_code |= (first_operand_number & 0x7);
+			result_code |= (6 << 12); // 0110 - operation code
+		}
 		return result_code;
 	}
 };

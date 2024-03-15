@@ -31,6 +31,7 @@ public:
         OP_AND,    /* bitwise and */
         OP_NOT,    /* bitwise not */
         OP_JMP,    /* jump */
+        OP_PRINT   /* print */
     };
     enum
     {
@@ -91,6 +92,13 @@ public:
                 {
                     uint16_t r1 = (instr >> 6) & 0x7;
                     reg[R_PC] = reg[r1];
+                    break;
+                }
+                case OP_PRINT:
+                {
+                    uint16_t r0 = instr & 0x7;
+                    std::cout << reg[r0] << '\n';
+                    break;
                 }
             }
         }
